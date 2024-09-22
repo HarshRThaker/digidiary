@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Diary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input[type="text"], input[type="date"], textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Digital Diary</h1>
+
+    <div class="section">
+        <h2>To-Do List</h2>
+        <input type="text" id="todoInput" placeholder="Enter a new task">
+        <button onclick="addTodo()">Add Task</button>
+        <ul id="todoList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Habit Tracker</h2>
+        <input type="text" id="habitInput" placeholder="Enter a new habit">
+        <button onclick="addHabit()">Add Habit</button>
+        <ul id="habitList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Mood Tracker</h2>
+        <input type="date" id="moodDate">
+        <select id="moodSelect">
+            <option value="happy">Happy</option>
+            <option value="neutral">Neutral</option>
+            <option value="sad">Sad</option>
+        </select>
+        <button onclick="addMood()">Add Mood</button>
+        <ul id="moodList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Affirmations Tracker</h2>
+        <input type="text" id="affirmationInput" placeholder="Enter an affirmation">
+        <button onclick="addAffirmation()">Add Affirmation</button>
+        <ul id="affirmationList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Health Tracker</h2>
+        <input type="date" id="healthDate">
+        <input type="number" id="weightInput" placeholder="Weight (kg)">
+        <input type="number" id="exerciseInput" placeholder="Exercise (minutes)">
+        <button onclick="addHealth()">Add Health Data</button>
+        <ul id="healthList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Journal</h2>
+        <textarea id="journalEntry" rows="4" placeholder="Write your journal entry here"></textarea>
+        <button onclick="addJournalEntry()">Save Entry</button>
+        <div id="journalEntries"></div>
+    </div>
+
+    <div class="section">
+        <h2>Meeting Scheduler</h2>
+        <input type="text" id="meetingTitle" placeholder="Meeting Title">
+        <input type="datetime-local" id="meetingDateTime">
+        <textarea id="meetingNotes" rows="4" placeholder="Meeting Notes"></textarea>
+        <button onclick="addMeeting()">Schedule Meeting</button>
+        <ul id="meetingList"></ul>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        let habits = JSON.parse(localStorage.getItem('habits')) || [];
+        let moods = JSON.parse(localStorage.getItem('moods')) || [];
+        let affirmations = JSON.parse(localStorage.getItem('affirmations')) || [];
+        let healthData = JSON.parse(localStorage.getItem('healthData')) || [];
+        let journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+        let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
+
+        // Update UI
+        updateUI();
+
+        function updateUI() {
+            document.getElementById('todoList').innerHTML = todos.map(todo => `<li>${todo} <button onclick="removeTodo('${todo}')">Remove</button></li>`).join('');
+            document.getElementById('habitList').innerHTML = habits.map(habit => `<li>${habit} <button onclick="removeHabit('${habit}')">Remove</button></li>`).join('');
+            document.getElementById('moodList').innerHTML = moods.map(mood => `<li>${mood.date}: ${mood.mood} <button onclick="removeMood('${mood.date}')">Remove</button></li>`).join('');
+            document.getElementById('affirmationList').innerHTML = affirmations.map(affirmation => `<li>${affirmation} <button onclick="removeAffirmation('${affirmation}')">Remove</button></li>`).join('');
+            document.getElementById('healthList').innerHTML = healthData.map(data => `<li>${data.date}: Weight ${data.weight}kg, Exercise ${data.exercise}min <button onclick="removeHealth('${data.date}')">Remove</button></li>`).join('');
+            document.getElementById('journalEntries').innerHTML = journalEntries.map(entry => `<p>${entry.date}: ${entry.text} <button onclick="removeJournalEntry('${entry.date}')">Remove</button></p>`).join('');
+            document.getElementById('meetingList').innerHTML = meetings.map(meeting => `<li>${meeting.title} on ${meeting.datetime} <button onclick="removeMeeting('${meeting.title}')">Remove</button></li>`).join('');
+        }
+
+        function addTodo() {
+            const todo = document.getElementById('todoInput').value;
+            if (todo) {
+                todos.push(todo);
+                localStorage.setItem('todos', JSON.stringify(todos));
+                document.getElementById('todoInput').value = '';
+                updateUI();
+            }
+        }
+
+        function removeTodo(todo) {
+            todos = todos.filter(t => t !== todo);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            updateUI();
+        }
+
+        function addHabit() {
+            const habit = document.getElementById('habitInput').value;
+            if (habit) {
+                habits.push(habit);
+                localStorage.setItem('habits', JSON.stringify(habits));
+                document.getElementById('habitInput').value = '';
+                updateUI();
+            }
+        }
+
+        function removeHabit(habit) {
+            habits = habits.filter(h => h !== habit);
+            localStorage.setItem('habits', JSON.stringify(habits));
+            updateUI();
+        }
+
+        function addMood() {
+            const date = document.getElementById('moodDate').value;
+            const mood = document.getElementById('moodSelect').value;
+            if (date && mood) {
+                moods.push({date, mood});
+                localStorage.setItem('moods', JSON.stringify(moods));
+                updateUI();
+            }
+        }
+
+        function removeMood(date) {
+            moods = moods.filter(m => m.date !== date);
+            localStorage.setItem('moods', JSON.stringify(moods));
+            updateUI();
+        }
+
+        function addAffirmation() {
+            const affirmation = document.getElementById('affirmationInput').value;
+            if (affirmation) {
+                affirmations.push(affirmation);
+                localStorage.setItem('affirmations', JSON.stringify(affirmations));
+                document.getElementById('affirmationInput').value = '';
+                updateUI();
+            }
+        }
+
+        function removeAffirmation(affirmation) {
+            affirmations = affirmations.filter(a => a !== affirmation);
+            localStorage.setItem('affirmations', JSON.stringify(affirmations));
+            updateUI();
+        }
+
+        function addHealth() {
+            const date = document.getElementById('healthDate').value;
+            const weight = document.getElementById('weightInput').value;
+            const exercise = document.getElementById('exerciseInput').value;
+            if (date && weight && exercise) {
+                healthData.push({date, weight, exercise});
+                localStorage.setItem('healthData', JSON.stringify(healthData));
+                updateUI();
+            }
+        }
+
+        function removeHealth(date) {
+            healthData = healthData.filter(d => d.date !== date);
+            localStorage.setItem('healthData', JSON.stringify(healthData));
+            updateUI();
+        }
+
+        function addJournalEntry() {
+            const text = document.getElementById('journalEntry').value;
+            if (text) {
+                const date = new Date().toISOString().split('T')[0];
+                journalEntries.push({date, text});
+                localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+                document.getElementById('journalEntry').value = '';
+                updateUI();
+            }
+        }
+
+        function removeJournalEntry(date) {
+            journalEntries = journalEntries.filter(e => e.date !== date);
+            localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+            updateUI();
+        }
+
+        function addMeeting() {
+            const title = document.getElementById('meetingTitle').value;
+            const datetime = document.getElementById('meetingDateTime').value;
+            const notes = document.getElementById('meetingNotes').value;
+            if (title && datetime) {
+                meetings.push({title, datetime, notes});
+                localStorage.setItem('meetings', JSON.stringify(meetings));
+                document.getElementById('meetingTitle').value = '';
+                document.getElementById('meetingDateTime').value = '';
+                document.getElementById('meetingNotes').value = '';
+                updateUI();
+            }
+        }
+
+        function removeMeeting(title) {
+            meetings = meetings.filter(m => m.title !== title);
+            localStorage.setItem('meetings', JSON.stringify(meetings));
+            updateUI();
+        }
+    </script>
+</body>
+</html>
